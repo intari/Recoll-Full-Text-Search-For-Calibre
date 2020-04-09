@@ -1,4 +1,4 @@
-#Recoll Full Text Search Plugin
+# Recoll Full Text Search Plugin
 
 
 Created by [Stanislav Kazmin (April 2013)](http://www.mobileread.com/forums/showthread.php?t=211137)
