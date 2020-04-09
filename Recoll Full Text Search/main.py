@@ -195,7 +195,6 @@ class RecollFulltextSearchDialog(QDialog):
         #self.p = Popen(self.cmdString,  shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
         self.p = Popen(self.cmdString,  shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         self.output = self.p.stdout.read()# output from the recoll search
-        #print ("Search result is "+self.output.decode('cp866'))
 
         self.found = list(set(re.findall(r" \((\d+)\)\/[^/]*", self.output)))# regex to find the calibre ids in the folder names
         
@@ -203,21 +202,50 @@ class RecollFulltextSearchDialog(QDialog):
         if len(self.found) == 0 :
             self.outputWindow.setText('no books found' + ' for ' + self.searchText)
         else :
-            for elem in self.found[:400]:
-                self.wholeString += 'id:=' + elem + ' or '
-            self.wholeString = self.wholeString[:-4]
-            if len(self.found) > 400 :
-                self.outputWindow.setText(str(len(self.found)) + ' books found' + ' for ' + self.searchText+ '. Only the first 400 books are shown')
-            else :
-                self.outputWindow.setText(str(len(self.found)) + ' books found' + ' for ' + self.searchText)
+            marked_text='true'
+            #marked_ids = dict.fromkeys(self.found, marked_text)
+            #print (marked_ids)
+            #print ("self.found:")
+            #print(type(self.found))
+            #print (self.found)
+            
+            #db = self.db.new_api
+            #matched_ids = {book_id for book_id in db.all_book_ids() if len(db.formats(book_id)) == 1}
 
-        if self.searchAdd == True :
-            self.oldFilter = self.gui.search.text()
-            self.wholeString = self.oldFilter + ' and (' + self.wholeString + ')'
+            #print ("matched_ids:")
+            #print(type(matched_ids))
+            #print (matched_ids)
+
+            self.found_ids=list(map(int,self.found))
+            #print ("self.found_ids:")
+            #print(type(self.found_ids))
+            #print (self.found_ids)
+            
+            current_db=self.gui.current_db
+            #current_db.data.set_marked_ids(matched_ids)
+            current_db.data.set_marked_ids(self.found_ids)
+            #self.gui.current_db.set_marked_ids(self.found)
+            self.gui.search.setEditText('marked:true')
+            self.gui.search.do_search()
+
+            #self.gui.search.set_search_string('marked:%s' % marked_text)
+
+            #for elem in self.found[:4000]:
+            #    self.wholeString += 'id:=' + elem + ' or '
+            #self.wholeString = self.wholeString[:-4]
+            #if len(self.found) > 2000 :
+            #    self.outputWindow.setText(str(len(self.found)) + ' books found' + ' for ' + self.searchText+ '. Only the first 4000 books are shown')
+            #else :
+            self.outputWindow.setText(str(len(self.found)) + ' books found' + ' for ' + self.searchText)
+
+        #if self.searchAdd == True :
+        #    self.oldFilter = self.gui.search.text()
+        #    self.wholeString = self.oldFilter + ' and (' + self.wholeString + ')'
         
-        self.searchTextWindow.clearEditText()
-        self.gui.search.setEditText(self.wholeString) # set calibre search to the string found by recoll
-        self.gui.search.do_search()
+        #self.searchTextWindow.clearEditText()
+        #self.gui.search.setEditText(self.wholeString) # set calibre search to the string found by recoll
+        
+        #self.gui.search.do_search()
 
     def config(self):
         self.do_user_config(parent=self)
@@ -225,6 +253,9 @@ class RecollFulltextSearchDialog(QDialog):
 # import of win_subprocess doesn't work? ok
 # Windows only!!!
 ## issue: https://bugs.python.org/issue19264
+
+import sys
+mswindows = (sys.platform == "win32")
 
 import ctypes
 import subprocess
@@ -240,7 +271,7 @@ import os
 ## Types
 ##
 
-CREATE_UNICODE_ENVIRONMENT = 0x00000400
+CREATE_UNICODE_ENVIRONMENT = 0x000004000
 LPCTSTR = c_char_p
 LPTSTR = c_wchar_p
 LPSECURITY_ATTRIBUTES = c_void_p
@@ -271,6 +302,19 @@ class PROCESS_INFORMATION(Structure):
 LPPROCESS_INFORMATION = ctypes.POINTER(PROCESS_INFORMATION)
 
 
+if mswindows:
+    import threading
+    import msvcrt
+    import _subprocess
+    class STARTUPINFO:
+        dwFlags = 0
+        hStdInput = None
+        hStdOutput = None
+        hStdError = None
+        wShowWindow = 0
+    class pywintypes:
+        error = IOError
+
 class DUMMY_HANDLE(ctypes.c_void_p):
 
     def __init__(self, *a, **kw):
@@ -294,7 +338,11 @@ CreateProcessW.argtypes = [
 ]
 CreateProcessW.restype = BOOL
 
-
+def getIntOrNone(s):
+    if s is None:
+        return None
+    else:
+        return int(s)
 ##
 ## Patched functions/classes
 ##
@@ -313,9 +361,10 @@ def CreateProcess(executable, args, _p_attr, _t_attr,
         wShowWindow=startup_info.wShowWindow,
         cb=sizeof(STARTUPINFOW),
         ## XXXvlab: not sure of the casting here to ints.
-        hStdInput=int(startup_info.hStdInput),
-        hStdOutput=int(startup_info.hStdOutput),
-        hStdError=int(startup_info.hStdError),
+        ## intari:fixed by code above
+        hStdInput=getIntOrNone(startup_info.hStdInput),
+        hStdOutput=getIntOrNone(startup_info.hStdOutput),
+        hStdError=getIntOrNone(startup_info.hStdError),
     )
 
     wenv = None
@@ -452,9 +501,11 @@ class Popen(subprocess.Popen):
                 args = unicode('"%s" %s') % (w9xpopen, args)
                 creationflags |= _subprocess.CREATE_NEW_CONSOLE
 
+        
+
         super(Popen, self)._execute_child(args, executable,
             preexec_fn, close_fds, cwd, env, universal_newlines,
             startupinfo, creationflags, False, to_close, p2cread,
             p2cwrite, c2pread, c2pwrite, errread, errwrite)
 
-_subprocess.CreateProcess = CreateProcess
+#_subprocess.CreateProcess = MyCreateProcess
