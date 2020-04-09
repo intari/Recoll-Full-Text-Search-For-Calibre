@@ -14,7 +14,7 @@ This Plugin uses [Recoll](http://www.lesbonscomptes.com/recoll/) as a backend pr
 
 It is build very simple and has only a few self explaining features.
 
-#Install
+# Install
 
 Steps to get this plugin working:
 
@@ -28,20 +28,21 @@ Steps to get this plugin working:
 
 9. If you want to see indexing progress - copy plugin's conf to main recall install and use it's GUI app for indexing.
 
-#Changes since 1.0.2
-##1.0.3
+# Changes since 1.0.2
+
+## 1.0.3
 - Now it's also possible to search for Russian words (or other non-ASCII)
 - default example config fix
 
 
-#Changes since 1.0.0
-##1.0.2
+# Changes since 1.0.0
+## 1.0.2
 - Works on windows
 - custom column is not necessary
 - only unique books are shown
 - Maximum number of Books is limited to 400 due to maximum recursion depth exceeded in the search interface
 
-##1.0.1 
+## 1.0.1 
 - changed search window to have a list of last searches
 - new about window
 - new message when updating the recoll library
