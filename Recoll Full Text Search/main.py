@@ -17,8 +17,8 @@ if False:
 from PyQt5.Qt import (QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel, 
                       QLineEdit, QComboBox,  QCompleter,  QMainWindow,  QWidget,  QTextEdit)
 from calibre_plugins.recoll_fulltext_search.config import prefs
+from subprocess import PIPE, STDOUT
 
-from subprocess import Popen, PIPE, STDOUT
 import re
 
 class AboutWindow(QMainWindow):
@@ -87,15 +87,15 @@ class RecollFulltextSearchDialog(QDialog):
         self.l.addWidget(self.outputWindow)
         
         # search button 1
-        self.doSearchButton = QPushButton('Search and replace the filter', self)
-        self.doSearchButton.clicked.connect(self.recollSearchNew)
+        self.doSearchButton = QPushButton('Search', self)
+        self.doSearchButton.clicked.connect(self.recollSearch)
         self.l.addWidget(self.doSearchButton)
         self.doSearchButton.setDefault(True)
                 
         # search button 2
-        self.doSearchButton = QPushButton('Search and add to filter', self)
-        self.doSearchButton.clicked.connect(self.recollSearchAdd)
-        self.l.addWidget(self.doSearchButton)
+        #self.doSearchButton = QPushButton('Search and add to filter', self)
+        #self.doSearchButton.clicked.connect(self.recollSearchAdd)
+        #self.l.addWidget(self.doSearchButton)
     
         # update database button 1
         self.updateDatabaseButton = QPushButton('Update recoll database', self)
@@ -164,7 +164,8 @@ class RecollFulltextSearchDialog(QDialog):
         #self.cmd = 'LD_LIBRARY_PATH="" ' + prefs['pathToRecoll'] + '/recollindex -c ' + prefs['pathToCofig'] + '/plugins/recollFullTextSearchPlugin'
         if self.replaceDatabase == True :
             self.cmd += [' -z']
-        self.p = Popen(self.cmd,  shell=False)
+        #was Popen(self.cmd, shell=False) in last release. Use regular gui!
+        self.p = Popen(self.cmd,  shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
         # TODO: Was close_fds nessesary? check it on linux
         #self.p = Popen(self.cmd,  shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
 
@@ -189,7 +190,8 @@ class RecollFulltextSearchDialog(QDialog):
  
         #TODO: Fix Linux
         #self.cmd = 'LD_LIBRARY_PATH="" ' + prefs['pathToRecoll'] + '/recoll -c ' + prefs['pathToCofig'] + '/plugins/recollFullTextSearchPlugin -b -t '
-        self.cmd = [prefs['pathToRecoll'] + '/recoll', '-c', prefs['pathToCofig'] + '/plugins/recollFullTextSearchPlugin', '-b', '-t']
+        #self.cmd = [prefs['pathToRecoll'] + '/recoll', '-c', prefs['pathToCofig'] + '/plugins/recollFullTextSearchPlugin', '-b', '-t']
+        self.cmd = [prefs['pathToRecoll'] + '/recollq', '-c', prefs['pathToCofig'] + '/plugins/recollFullTextSearchPlugin', '-b']
         self.cmdString = self.cmd + [self.searchTextConsole]
         # TODO: Was close_fds nessesary? check it on linux
         #self.p = Popen(self.cmdString,  shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
@@ -501,11 +503,11 @@ class Popen(subprocess.Popen):
                 args = unicode('"%s" %s') % (w9xpopen, args)
                 creationflags |= _subprocess.CREATE_NEW_CONSOLE
 
-        
+
 
         super(Popen, self)._execute_child(args, executable,
             preexec_fn, close_fds, cwd, env, universal_newlines,
             startupinfo, creationflags, False, to_close, p2cread,
             p2cwrite, c2pread, c2pwrite, errread, errwrite)
 
-#_subprocess.CreateProcess = MyCreateProcess
+_subprocess.CreateProcess = CreateProcess

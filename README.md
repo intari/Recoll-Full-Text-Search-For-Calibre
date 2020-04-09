@@ -32,8 +32,10 @@ Steps to get this plugin working:
 
 ## 1.0.3
 - Now it's also possible to search for Russian words (or other non-ASCII)
-- default example config fix
-
+- Default example config fix
+- Limit of 400 books is now removed. Thanks to https://bugs.launchpad.net/calibre/+bug/1264676
+- "Add to filter" removed because it's no longer necessary due to 400 items limit removed
+- Fixes for search stability in some situations
 
 # Changes since 1.0.0
 ## 1.0.2
