@@ -1,8 +1,11 @@
 #Recoll Full Text Search Plugin
 
+
 Created by [Stanislav Kazmin (April 2013)](http://www.mobileread.com/forums/showthread.php?t=211137)
 
 Modified by idealist1508 (Aug 2016)
+
+Modified by intari (Apr 2020)
 
 Requires Calibre >= 2.63 (actually I think, it will run on earlier versions)
 Runs only on windows and I hope on unix systems.
@@ -22,6 +25,14 @@ Steps to get this plugin working:
 6. before use the the plugin for the first time, make sure the paths for the plugin are set right (check out plugins preferences for do so)
 7. Make create a database for recoll using the button in the plugin (can take a lot of time for the first time)
 8. Thats it
+
+9. If you want to see indexing progress - copy plugin's conf to main recall install and use it's GUI app for indexing.
+
+#Changes since 1.0.2
+##1.0.3
+- Now it's also possible to search for Russian words (or other non-ASCII)
+- default example config fix
+
 
 #Changes since 1.0.0
 ##1.0.2
