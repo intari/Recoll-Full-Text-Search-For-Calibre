@@ -28,7 +28,13 @@ Steps to get this plugin working:
 
 9. If you want to see indexing progress - copy plugin's conf to main recall install and use it's GUI app for indexing.
 
+# TODO
+Cleanup code!
+
 # Changes since 1.0.2
+
+## 1.0.4
+- Calibre's viewer now works again
 
 ## 1.0.3
 - Now it's also possible to search for Russian words (or other non-ASCII)
