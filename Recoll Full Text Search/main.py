@@ -317,6 +317,8 @@ if mswindows:
     class pywintypes:
         error = IOError
 
+
+
 class DUMMY_HANDLE(ctypes.c_void_p):
 
     def __init__(self, *a, **kw):
@@ -505,9 +507,18 @@ class Popen(subprocess.Popen):
 
 
 
+        print ( "recollFullText search - installing interceptors - storing original" )
+        originalCreateProcess=_subprocess.CreateProcess
+        print ( "recollFullText search - installing interceptors - installing new" )
+        _subprocess.CreateProcess=CreateProcess
+
         super(Popen, self)._execute_child(args, executable,
             preexec_fn, close_fds, cwd, env, universal_newlines,
             startupinfo, creationflags, False, to_close, p2cread,
             p2cwrite, c2pread, c2pwrite, errread, errwrite)
+        print ( "recollFullText search - installing interceptors - installing original" )
+        _subprocess.CreateProcess=originalCreateProcess
 
-_subprocess.CreateProcess = CreateProcess
+
+print ("recollFullText search - initial")
+#_subprocess.CreateProcess = CreateProcess
